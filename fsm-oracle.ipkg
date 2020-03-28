@@ -1,0 +1,13 @@
+package idris-fsm-oracle
+
+sourcedir = src
+
+modules =
+  Main
+
+main = Main
+
+executable = "fsm-oracle"
+
+pkgs = contrib, idris-ct, tparsec, typedefs-core
+
