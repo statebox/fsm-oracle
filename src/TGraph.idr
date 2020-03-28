@@ -20,12 +20,6 @@ import Typedefs.Typedefs
 TNat : TDefR 2
 TNat = RRef 0
 
--- Map TNat to Nat and back
-toNat : Ty (Nat :: rest) TNat -> Nat
-toNat n = n
-
-fromNat : Nat -> Ty (Nat :: rest) TNat
-fromNat n = n
 
 -- TODO add to typdefs?
 ignoreShift : {t : TDefR l} -> {rest : Vect l Type} -> Ty (var :: rest) (shiftVars t) -> Ty rest t
@@ -94,10 +88,10 @@ FSMExec = TProd [FSMSpec, FSMState, FSMPath]
 ||| Errors related to checking if a FSM description is valid
 data FSMError = InvalidFSM | InvalidState | InvalidPath
 
-TFSMErr : TDefR 2
+TFSMErr : TDefR 0
 TFSMErr = TMu [("InvalidFSM", T1), ("InvalidState", T1), ("InvalidPath", T1)]
 
-toTDefErr : FSMError -> Ty [List Nat, Nat] TFSMErr
+toTDefErr : FSMError -> Ty [] TFSMErr
 toTDefErr InvalidFSM = Inn (Left ())
 toTDefErr InvalidState = Inn (Right  (Left ()))
 toTDefErr InvalidPath = Inn (Right (Right ()))
