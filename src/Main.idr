@@ -13,10 +13,6 @@ import Typedefs.Typedefs
 import Typedefs.TermParse
 import Typedefs.TermWrite
 
--- tparsec
-import Relation.Indexed
-import Data.NEList
-
 import TGraph
 import GraphCat
 

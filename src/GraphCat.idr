@@ -18,8 +18,6 @@ import Typedefs.Typedefs
 
 import TGraph
 
--- import Util.Elem
-
 %access public export
 %default total
 
@@ -38,14 +36,16 @@ constructNEPath g ((x, y) :: (y',z) :: pt) with (decEq y y')
        pure $ el :: path
   constructNEPath g ((x, y) :: (y',z) :: pt) | No ctra = Left InvalidPath
 
-validateExec : Ty [Nat, List (Nat, Nat)] FSMExec -> FSMCheck (cat : Category ** a : obj cat ** b : obj cat ** mor cat a b)
+validateExec : IdrisType FSMExec -> FSMCheck (cat : Category ** a : obj cat ** b : obj cat ** mor cat a b)
 validateExec (spec, state, path) =
   do -- convert into a graph with `n` being the number of states
-     (n**g) <- maybe (Left InvalidFSM) Right $ mkTGraph $ fromFSMSpecToEdgeList spec
+     (m** MkGraph {n} edges) <- maybe (Left InvalidFSM) Right $ mkTGraph $ spec
      -- get the inital state as a fin
-     st <- maybe (Left InvalidState) Right $ natToFin (state) n
+     st <- maybe (Left InvalidState) Right $ natToFin state m
      -- Convert the edge list into fins
-     edgeList <- maybe (Left InvalidPath) Right $ convertList n $ fromFSMPathToEdgeList path
+     edgeIndices <- maybe (Left InvalidPath) Right $ convertList' n path
+     let edgeList = map (\idx => Data.Vect.index idx edges) edgeIndices
+     let g = MkGraph edges    
      case nonEmpty edgeList of
        -- if the path is not valid we need to check the initial state is the first state of the path
        Yes nel => case decEq (fst $ head edgeList) st of
@@ -68,9 +68,9 @@ lastStep : (cat : Category) -> (a, b : obj cat) -> (m : mor cat a b)
 lastStep (MkCategory _ _ _ _ _ _ _) a b m = Refl
 
 IdrisExec : Type
-IdrisExec = ((Nat, List (Nat, Nat)), Nat, List (Nat, Nat))
+IdrisExec = ((Nat, List (Nat, Nat)), Nat, List Nat)
 
-fromIdrisExec : IdrisExec -> Ty [Nat, List (Nat, Nat)] FSMExec
+fromIdrisExec : IdrisExec -> IdrisType FSMExec
 fromIdrisExec ((states, trans), init, path) =
   ( ( states
     ,  trans)
