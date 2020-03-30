@@ -24,21 +24,32 @@ import Language.JSON
 %access public export
 %default total
 
+checkFSM : String -> FSMCheck ()
+checkFSM fileContent = do
+    content <- maybe (Left JSONError) Right (parse fileContent)
+    fsm <- maybe (Left InvalidFSM) Right (Typedefs.TermParse.deserializeJSON FSMExec
+      [ (Nat ** expectNat)
+      , (List (Nat, Nat) ** expectListEdges)
+      , (List Nat ** expectListNat)
+      ]
+      content)
+    (cat ** a ** b ** m) <- validateExec fsm
+    let v = lastStep cat a b m
+    pure ()
+
+
+toTDef : FSMCheck () -> Ty [] TResult
+toTDef (Left err) = Right (toTDefErr err)
+toTDef (Right r) = Left r
+
 partial
 main : IO ()
 main = do
     [_,filename] <- getArgs
-      | _ => putStrLn "Wrong cmdline args"
-    Right content <- readFile filename
-      | Left err => putStrLn ("Filesystem error: " ++ show err)
-    let Just content = parse content
-      | Nothing => putStrLn ("invalid JSON")
-    let Just fsm = Typedefs.TermParse.deserializeJSON FSMExec
-      [(Nat ** expectNat), (List (Nat, Nat) ** expectListEdges)] content
-      | Nothing => putStrLn "invalid FSM termdef"
-    let Right (cat ** a ** b ** m) = validateExec fsm
-      | Left err => printLn (TermWrite.serializeJSON [] [] TResult (Right (toTDefErr err)))
-    let v = lastStep cat a b m
-    printLn (TermWrite.serializeJSON [] [] TResult (Left ()))
+      | _ => putStrLn "Usage: fsm-oracle FILE"
+    content <-  (readFile filename)
+    let asFSMCheck = either (const (Left FSError)) Right content
+    let checkedFSM = asFSMCheck >>= checkFSM
+    printLn (TermWrite.serializeJSON [] [] TResult (toTDef checkedFSM))
 
 

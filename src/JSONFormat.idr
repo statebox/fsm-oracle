@@ -22,10 +22,17 @@ expectEdges : JSON -> Maybe (Nat, Nat)
 expectEdges (JObject [("input", a),("output", b)])= [| MkPair (expectNat a) (expectNat b) |]
 expectEdges _ = Nothing
 
+expectList : JSON -> Maybe (List JSON)
+expectList (JArray ls) = Just ls
+expectList _ = Nothing
+
+export
+expectListNat : JSON -> Maybe (List Nat)
+expectListNat js = expectList js >>= traverse expectNat
+
 export
 expectListEdges : JSON -> Maybe (List (Nat, Nat))
-expectListEdges (JArray ls) = traverse expectEdges ls
-expectListEdges _ = Nothing
+expectListEdges js = expectList js >>= traverse expectEdges
 
 public export
 TResult : TDefR 0

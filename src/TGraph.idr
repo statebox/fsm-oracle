@@ -85,23 +85,42 @@ FSMExec : TDefR 3
 FSMExec = TProd [FSMSpec, FSMState, FSMPath]
 
 ||| Errors related to checking if a FSM description is valid
-data FSMError = InvalidFSM | InvalidState | InvalidPath
+data FSMError =
+  ||| Error in the FSM description
+  InvalidFSM |
+  ||| Error in the state transitions
+  InvalidState |
+  ||| Error in the execution path
+  InvalidPath |
+  ||| Error when parsing the JSON file
+  JSONError |
+  ||| Error when reading the file
+  FSError
 
 TFSMErr : TDefR 0
-TFSMErr = TMu [("InvalidFSM", T1), ("InvalidState", T1), ("InvalidPath", T1)]
+TFSMErr = TMu [("InvalidFSM", T1),
+               ("InvalidState", T1),
+               ("InvalidPath", T1),
+               ("JSONError", T1),
+               ("FSError", T1)
+               ]
 
 toTDefErr : FSMError -> Ty [] TFSMErr
-toTDefErr InvalidFSM = Inn (Left ())
-toTDefErr InvalidState = Inn (Right  (Left ()))
-toTDefErr InvalidPath = Inn (Right (Right ()))
+toTDefErr InvalidFSM   = Inn (Left ())
+toTDefErr InvalidState = Inn (Right (Left ()))
+toTDefErr InvalidPath  = Inn (Right (Right (Left ())))
+toTDefErr JSONError    = Inn (Right (Right (Right (Left ()))))
+toTDefErr FSError      = Inn (Right (Right (Right (Right ()))))
 
 Show FSMError where
   show InvalidFSM   = "Invalid FSM"
   show InvalidState = "Invalid state"
   show InvalidPath  = "Invalid path"
+  show JSONError    = "JSON parsing error"
+  show FSError      = "Filesystem error"
 
 IdrisType : TDefR 3 -> Type
-IdrisType = Ty [Nat, List (Nat, Nat), List Nat] 
+IdrisType = Ty [Nat, List (Nat, Nat), List Nat]
 
 ||| Monad to check errors when compiling FSMs
 FSMCheck : Type -> Type
