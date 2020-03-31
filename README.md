@@ -51,7 +51,7 @@ Where `x` denotes an error code according to the following table:
 |`4`|Filesystem error: File cannot be read.   |
 ## Input format
 
-Input has to be fed as JSON, and is converted to Idris terms and types through the use of [Typedefs](https://github.com/typedefs/typedefs)
+Input has to be fed as JSON, and is converted to Idris terms and types through the use of [Typedefs](https://github.com/typedefs/typedefs).
 
 The Idris types for FSM executions are defined in the file `Tgraph.idr`:
 
