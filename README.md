@@ -72,7 +72,7 @@ The initial state has to be in range as specified by the number of vertexes in `
 #### `FSMPath`
 The type of `FSMPath` is `List Nat`. It specifies a computation to evaluate.
 
-Each number in the list as to be in range as specified by the length of the edgelist in `FSMSpec`. As such, `[1,0]` is a valid path for the FSM `(5,[(2,1),(4,2),(0, 3)])` (indicating to first use the action going from `4` to `2` and then the one going from `2` to `1`), while `[3]` is not.
+Each number in the list has to be in range as specified by the length of the edgelist in `FSMSpec`. As such, `[1,0]` is a valid path for the FSM `(5,[(2,1),(4,2),(0, 3)])` (indicating to first use the action going from `4` to `2` and then the one going from `2` to `1`), while `[3]` is not.
 
 #### Examples 
 
