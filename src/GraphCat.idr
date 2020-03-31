@@ -45,7 +45,7 @@ validateExec (spec, state, path) =
      -- Convert the edge list into fins
      edgeIndices <- maybe (Left InvalidPath) Right $ convertList' n path
      let edgeList = map (\idx => Data.Vect.index idx edges) edgeIndices
-     let g = MkGraph edges    
+     let g = MkGraph edges
      case nonEmpty edgeList of
        -- if the path is not valid we need to check the initial state is the first state of the path
        Yes nel => case decEq (fst $ head edgeList) st of
