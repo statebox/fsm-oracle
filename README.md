@@ -77,9 +77,10 @@ Each number in the list has to be in range as specified by the length of the edg
 #### Examples 
 
 The following define valid inputs:
-`((5, [(1,1),(3,4),(2,1)]) , 3, [1])`
-`((5, [(1,1),(1,1),(2,1)]) , 2, [2,1,0])`
-
+```
+((5, [(1,1),(3,4),(2,1)]) , 3, [1])
+((5, [(1,1),(1,1),(2,1)]) , 2, [2,1,0])
+```
 
 The following define invalid inputs:
 
@@ -115,9 +116,7 @@ To encode tuples, and the usual square bracket notation for lists. Pairs definin
 ```
 Where `input` and `output` specify the endpoints of the edge.
 
-Applying these definitions recursively, any term of type `FSMExec` can be encoded.
-
-For example, the following is the JSON encoding of the input execution `((5, [(1,1),(3,4),(2,1)]) , 2, [2,0,0])`
+Applying these definitions recursively, any term of type `FSMExec` can be encoded. For example, the following is the JSON encoding of the input execution `((5, [(1,1),(3,4),(2,1)]) , 2, [2,0,0])`:
 
 
 ```javascript
