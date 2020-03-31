@@ -53,7 +53,7 @@ Where `x` denotes an error code according to the following table:
 
 Input has to be fed as JSON, and is converted to Idris terms and types through the use of [Typedefs](https://github.com/typedefs/typedefs).
 
-The Idris types for FSM executions are defined in the file `Tgraph.idr`:
+The Idris types for FSM executions are defined in the file `Tgraph.idr`.
 
 The internal input format is a term of type `FSMExec`, and is of the form 
 `(FSMSpec, FSMState, FSMPath)`. It consists of three things: A specification of the FSM on which executions are run (`FSMSpec`), an initial state (`FSMState`), and a list of actions (`FSMPath`).
