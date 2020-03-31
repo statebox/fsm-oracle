@@ -51,12 +51,10 @@ Where `x` denotes an error code according to the following table:
 |`4`|Filesystem error: File cannot be read.   |
 ## Input format
 
-Input has to be fed as JSON, and is converted to Idris terms and types through the use of [Typedefs](https://github.com/typedefs/typedefs).
-
-The Idris types for FSM executions are defined in the file `Tgraph.idr`.
+Input has to be fed as JSON, and is converted to Idris terms and types through the use of [Typedefs](https://github.com/typedefs/typedefs). The Idris types for FSM executions are defined in the file `Tgraph.idr`.
 
 The internal input format is a term of type `FSMExec`, and is of the form 
-`(FSMSpec, FSMState, FSMPath)`. It consists of three things: A specification of the FSM on which executions are run (`FSMSpec`), an initial state (`FSMState`), and a list of actions (`FSMPath`).
+`(FSMSpec, FSMState, FSMPath)`. It consists of three things: A specification of the FSM on which executions are run (`FSMSpec`), an initial state (`FSMState`), and a list of actions to evaluate (`FSMPath`).
 
 #### `FSMSpec`
 The type of `FSMSpec` is `(Nat,List (Nat Nat))`: The FSM is specified as a pair, where the first component denotes the number of states (vertexes) of the FSM, while the second is a list of pairs of vertexes (edgelist) denoting the possible actions.
