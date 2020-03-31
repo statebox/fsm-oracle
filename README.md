@@ -19,7 +19,9 @@ to install `FSM-oracle`. You can find elba and instructions on how to install it
 ## Usage
 Just put your input (as specified below) in a file, for example `input.JSON`, and run:
 
---
+```
+./fsm-oracle input.json
+```
 
 If the execution is valid, Idris will return a json output of the following form:
 
