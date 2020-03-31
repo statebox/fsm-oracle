@@ -137,7 +137,7 @@ Applying these definitions recursively, any term of type `FSMExec` can be encode
        "output": 1
       }]
   },
-  "_1": 3,
+  "_1": 2,
   "_2": [2, 0, 0]
 }
  ```
