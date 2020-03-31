@@ -14,13 +14,15 @@ We use `elba` to download dependencies and compile the binary, just type:
 $ elba install
 ```
 
-to install `FSM-oracle`. You can find elba and instructions on how to install it on the [official repository](https://github.com/elba/elba).
+This will install the binary in elba's binary folder. Typically `~/.elba/bin` if this folder is in your path you can simply call `fsm-oracle` to test it out.
+
+You can find elba and instructions on how to install it on the [official repository](https://github.com/elba/elba).
 
 ## Usage
 Just put your input (as specified below) in a file, for example `input.JSON`, and run:
 
 ```
-./fsm-oracle input.json
+fsm-oracle input.json
 ```
 
 If the execution is valid, Idris will return a json output of the following form:
@@ -55,13 +57,13 @@ Where `x` denotes an error code according to the following table:
 
 Input has to be fed as JSON, and is converted to Idris terms and types through the use of [Typedefs](https://github.com/typedefs/typedefs). The Idris types for FSM executions are defined in the file `Tgraph.idr`.
 
-The internal input format is a term of type `FSMExec`, and is of the form 
+The internal input format is a term of type `FSMExec`, and is of the form
 `(FSMSpec, FSMState, FSMPath)`. It consists of three things: A specification of the FSM on which executions are run (`FSMSpec`), an initial state (`FSMState`), and a list of actions to evaluate (`FSMPath`).
 
 #### `FSMSpec`
 The type of `FSMSpec` is `(Nat,List (Nat Nat))`: The FSM is specified as a pair, where the first component denotes the number of states (vertexes) of the FSM, while the second is a list of pairs of vertexes (edgelist) denoting the possible actions.
 
-For instance, `(5,[(2,1),(4,2),(0, 3)])` specifies a FSM having `5` vertexes, enumerated `0,1,2,3,4`, and three possible actions: One going from `2` to `1`, one going from `4` to `2` and one going from `0` to `3`. 
+For instance, `(5,[(2,1),(4,2),(0, 3)])` specifies a FSM having `5` vertexes, enumerated `0,1,2,3,4`, and three possible actions: One going from `2` to `1`, one going from `4` to `2` and one going from `0` to `3`.
 
 The edgelist has to be in range as specified by the number of vertexes. As such, specifications such as `(5,[(7,1),(4,2),(0, 3)])`
 or `(5,[(5,5)])` are considered invalid and will produce an error.
@@ -76,7 +78,7 @@ The type of `FSMPath` is `List Nat`. It specifies a computation to evaluate.
 
 Each number in the list has to be in range as specified by the length of the edgelist in `FSMSpec`. As such, `[1,0]` is a valid path for the FSM `(5,[(2,1),(4,2),(0, 3)])` (indicating to first use the action going from `4` to `2` and then the one going from `2` to `1`), while `[3]` is not.
 
-#### Examples 
+#### Examples
 
 The following define valid inputs:
 ```
@@ -103,7 +105,7 @@ We do use the notation:
 
 ```javascript
 {
-  "_1": 
+  "_1":
   "_2":
   ...
   "_n":
