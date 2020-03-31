@@ -46,7 +46,7 @@ Where `x` denotes an error code according to the following table:
 |---|---|
 |`0`| The FSM specification is invalid.   |
 |`1`| The FSM state is invalid.   |
-|`2`|Path is invalid.   |
+|`2`| The FSM path is invalid.   |
 |`3`|Input cannot be parsed as JSON.   |
 |`4`|Filesystem error: File cannot be read.   |
 ## Input format
