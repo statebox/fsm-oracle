@@ -1,4 +1,4 @@
-# STBX-FSM-ORACLE
+# Statebox's FSM-Oracle
 
 A formally verified idris program that evaluates executions for finite state machines (FSM).
 
