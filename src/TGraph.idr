@@ -20,39 +20,6 @@ import Typedefs.Typedefs
 TNat : TDefR 3
 TNat = RRef 0
 
--- TODO add to typdefs?
-ignoreShift : {t : TDefR l} -> {rest : Vect l Type} -> Ty (var :: rest) (shiftVars t) -> Ty rest t
-ignoreShift {t=T0}                     ty         = absurd ty
-ignoreShift {t=T1}                     ()         = ()
-ignoreShift {t=TSum [x,y]}             (Left ty)  = Left $ ignoreShift ty
-ignoreShift {t=TSum [x,y]}             (Right ty) = Right $ ignoreShift ty
-ignoreShift {t=TSum (x::y::z::ts)}     (Left ty)  = Left $ ignoreShift ty
-ignoreShift {t=TSum (x::y::z::ts)}     (Right ty) = Right $ ignoreShift {t=TSum (y::z::ts)} ty
-ignoreShift {t=TProd [x,y]}            (ty1,ty2)  = (ignoreShift ty1,ignoreShift ty2)
-ignoreShift {t=TProd (x::y::z::ts)}    (ty1,ty2)  = (ignoreShift ty1,ignoreShift {t=TProd (y::z::ts)} ty2)
-ignoreShift {t=TMu cs}                 (Inn ty)   =
-  --TODO finish
-  Inn $ really_believe_me ty
-ignoreShift {t=TApp (TName nam df) xs}  ty        = really_believe_me ty
-ignoreShift {t=TVar x}                  ty        = ty
-ignoreShift {t=RRef x}                  ty        = ty
-
-addShift : {t : TDefR l} -> Ty vars t -> Ty (var :: vars) (shiftVars t)
-addShift {t=T0}                     ty         = absurd ty
-addShift {t=T1}                     ()         = ()
-addShift {t=TSum [x,y]}             (Left ty)  = Left $ addShift ty
-addShift {t=TSum [x,y]}             (Right ty) = Right $ addShift ty
-addShift {t=TSum (x::y::z::ts)}     (Left ty)  = Left $ addShift ty
-addShift {t=TSum (x::y::z::ts)}     (Right ty) = Right $ addShift {t=TSum (y::z::ts)} ty
-addShift {t=TProd [x,y]}            (ty1,ty2)  = (addShift ty1,addShift ty2)
-addShift {t=TProd (x::y::z::ts)}    (ty1,ty2)  = (addShift ty1,addShift {t=TProd (y::z::ts)} ty2)
-addShift {t=TMu cs}                 (Inn ty)   =
-  --TODO finish
-  Inn $ really_believe_me ty
-addShift {t=(TApp x xs)} ty = really_believe_me ty
-addShift {t=(RRef x)} ty = ty
-addShift {t=(TVar i)} ty = ty
-
 -- Graph definitions
 
 ||| The type definition for vertices in the graph is jsut
