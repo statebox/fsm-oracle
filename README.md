@@ -145,3 +145,9 @@ Applying these definitions recursively, any term of type `FSMExec` can be encode
   "_2": [2, 0, 0]
 }
  ```
+
+### License
+
+Unless explicitly stated otherwise all files in this repository are licensed under the GNU Affero General Public License.
+
+Copyright © 2020 [Stichting Statebox](https://statebox.nl).
