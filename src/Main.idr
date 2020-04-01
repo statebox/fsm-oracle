@@ -49,7 +49,7 @@ import Language.JSON
 checkFSM : String -> FSMCheck ()
 checkFSM fileContent = do
     content <- maybe (Left JSONError) Right (parse fileContent)
-    fsm <- maybe (Left InvalidFSM) Right (Typedefs.TermParse.deserializeJSON FSMExec
+    fsm <- either (const $ Left InvalidFSM) (Right) (Typedefs.TermParse.deserialiseJSON FSMExec
       [ (Nat ** expectNat)
       , (List (Nat, Nat) ** expectListEdges)
       , (List Nat ** expectListNat)
@@ -72,6 +72,6 @@ main = do
     content <-  (readFile filename)
     let asFSMCheck = either (const (Left FSError)) Right content
     let checkedFSM = asFSMCheck >>= checkFSM
-    printLn (TermWrite.serializeJSON [] [] TResult (toTDef checkedFSM))
+    printLn (TermWrite.serialiseJSON [] [] TResult (toTDef checkedFSM))
 
 
