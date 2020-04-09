@@ -130,3 +130,39 @@ convertList' n edges = traverse (\x => natToFin x n) edges
 mkTGraph : (Nat, List (Nat, Nat)) -> Maybe (DPair Nat (\size => Graph (Fin size)))
 mkTGraph (size, edges) = do convertedEdges <- convertList size edges
                             pure (size ** MkGraph $ fromList convertedEdges)
+
+
+
+{-
+FSMSpec, FSMState, FSMPath
+
+Tensor f g : a c -> b d
+       |
+      xa
+   /      \
+ /          \
+ |         ;
+ |        /    \
+ x       |   id
+/  \     |     |
+f  g     h   x
+              /   \
+             a    b
+(f * g) * (h;id_a)
+
+
+
+DecEq a => Maybe HYpergraph a b -> Maybe HYpergraph b c -> Maybe (Hypergraph a c)
+a b = [| compose a b |] <=> pure compose <*> a <$> b
+
+{a,b,c,d : TDef 0} -> Mor a b -> Mor' c d  -> Maybe (Mor a d)
+if b = c then Compose
+otherwise fuck off
+
+PetriOracle : (description : (PEtriSpec, PetriState, PetriPath)) -> Maybe (tree : Tree Nat (List Nat, List Nat))
+           -> Maybe (left : domain tree ** right : codomain tree ** Hypergraph left right)
+
+
+HasObject tree -> (p : Object tree ** Position tree)
+-}
+
