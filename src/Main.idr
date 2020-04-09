@@ -36,6 +36,8 @@ import Typedefs.TermParse
 import Typedefs.TermWrite
 
 import TGraph
+import PetriGraph
+import PetriFormat
 import GraphCat
 
 -- base
@@ -49,7 +51,7 @@ import Language.JSON
 checkFSM : String -> FSMCheck ()
 checkFSM fileContent = do
     content <- maybe (Left JSONError) Right (parse fileContent)
-    fsm <- either (const $ Left InvalidFSM) (Right) (Typedefs.TermParse.deserialiseJSON FSMExec
+    fsm <- either (const $ Left InvalidFSM) Right (Typedefs.TermParse.deserialiseJSON FSMExec
       [ (Nat ** expectNat)
       , (List (Nat, Nat) ** expectListEdges)
       , (List Nat ** expectListNat)
@@ -57,6 +59,20 @@ checkFSM fileContent = do
       content)
     (cat ** a ** b ** m) <- validateExec fsm
     let v = lastStep cat a b m
+    pure ()
+
+checkPetri : String -> FSMCheck ()
+checkPetri fileContent = do
+    content <- maybe (Left JSONError) Right (parse fileContent)
+    petri' <- either (const $ Left InvalidFSM) Right (Typedefs.TermParse.deserialiseJSON TPetriExec
+      [ (Nat ** expectNat)
+      , (List (List Nat, List Nat) ** expectListListEdges)
+      , (List Nat ** expectListNat)
+      ]
+      content)
+    petri <- maybe (Left InvalidFSM) Right (convertExec $ petri')
+    let True = isJust $ composeWithId (Spec petri) (Path petri) (State petri)
+      | Left InvalidFSM
     pure ()
 
 
@@ -74,4 +90,17 @@ main = do
     let checkedFSM = asFSMCheck >>= checkFSM
     printLn (TermWrite.serialiseJSON [] [] TResult (toTDef checkedFSM))
 
+<<<<<<< HEAD
+=======
+-- partial
+-- main : IO ()
+-- main = do
+--     [_,filename] <- getArgs
+--       | _ => putStrLn "Usage: fsm-oracle FILE"
+--     content <-  (readFile filename)
+--     let asFSMCheck = either (const (Left FSError)) Right content
+--     let checkedFSM = asFSMCheck >>= checkFSM
+--     printLn (TermWrite.serialiseJSON [] [] TResult (toTDef checkedFSM))
+--
+>>>>>>> Add Cartographer files and implemet checking procedure for nets
 

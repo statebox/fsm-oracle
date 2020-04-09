@@ -10,4 +10,3 @@ main = Main
 executable = "fsm-oracle"
 
 pkgs = contrib, idris-ct, tparsec, typedefs-core
-
