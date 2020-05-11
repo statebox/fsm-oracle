@@ -60,21 +60,31 @@ convertTree' (Sym a b) = (Inn (Right (Right (Left (a, b)))))
 convertTree' (Id x) = (Inn (Right (Right (Right (Left x)))))
 convertTree' (Mor x) = (Inn (Right (Right (Right (Right x)))))
 
+example : Tree Nat Nat
+example = Id Z
+
+export
+exampleTDef : Ty [Nat] TTree
+exampleTDef = convertTree' example
+
 public export
 convertState : (spec : PetriSpec k) -> List Nat -> Maybe (PetriState spec)
 convertState spec = traverse (\s => natToFin s (Places spec))
 
 public export
 TPetriExec : TDefR 3
-TPetriExec = TProd [TProd [RRef 0 , RRef 1], RRef 2, weakenTDef TTree 3 (LTESucc LTEZero)]
+TPetriExec = TProd [ TProd [RRef 0 , RRef 1]
+                   , RRef 2
+                   , weakenTDef TTree 3 (LTESucc LTEZero)
+                   ]
 
 dropContext : Ty [Nat, a, b] (weakenTDef TTree 3 (LTESucc LTEZero)) -> Ty [Nat] TTree
 dropContext tdef = really_believe_me tdef
 
 public export
-convertExec : Ty [Nat, List (List Nat, List Nat), List Nat] TPetriExec -> Maybe PetriExec
-convertExec ((a, b), c, d) = do (k ** spec) <- convertSpec (a , b)
-                                path <- checkTree spec (convertTree $ dropContext d)
-                                state <- convertState spec c
+convertExec : Ty [Nat, List (List Nat, List Nat), List Nat] TPetriExec -> Either String PetriExec
+convertExec ((a, b), c, d) = do (k ** spec) <-  maybeToEither "indices are wrong" $ convertSpec (a , b)
+                                path <- maybeToEither "illegal tree" $ checkTree spec (convertTree $ dropContext d)
+                                state <- maybeToEither  "Illegal states" $ convertState spec c
                                 pure $ MkPetriExec spec path state
 

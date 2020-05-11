@@ -48,35 +48,39 @@ import Language.JSON
 %access public export
 %default total
 
-checkFSM : String -> FSMCheck ()
-checkFSM fileContent = do
-    content <- maybe (Left JSONError) Right (parse fileContent)
-    fsm <- either (const $ Left InvalidFSM) Right (Typedefs.TermParse.deserialiseJSON FSMExec
-      [ (Nat ** expectNat)
-      , (List (Nat, Nat) ** expectListEdges)
-      , (List Nat ** expectListNat)
-      ]
-      content)
-    (cat ** a ** b ** m) <- validateExec fsm
-    let v = lastStep cat a b m
-    pure ()
+mapError : (a -> b) -> Either a c -> Either b c
+mapError f (Left a) = Left (f a)
+mapError _ (Right v) = Right v
+
+-- checkFSM : String -> FSMCheck ()
+-- checkFSM fileContent = do
+--     content <- maybe (Left JSONError) Right (parse fileContent)
+--     fsm <- mapErro (const $ InvalidFSM "could not convert from TDef") (Typedefs.TermParse.deserialiseJSON FSMExec
+--       [ (Nat ** expectNat)
+--       , (List (Nat, Nat) ** expectListEdges)
+--       , (List Nat ** expectListNat)
+--       ]
+--       content)
+--     (cat ** a ** b ** m) <- validateExec fsm
+--     let v = lastStep cat a b m
+--     pure ()
 
 checkPetri : String -> FSMCheck ()
 checkPetri fileContent = do
     content <- maybe (Left JSONError) Right (parse fileContent)
-    petri' <- either (const $ Left InvalidFSM) Right (Typedefs.TermParse.deserialiseJSON TPetriExec
+    petri' <- mapError (const $ InvalidFSM "could not convert from TDef") (Typedefs.TermParse.deserialiseJSON TPetriExec
       [ (Nat ** expectNat)
       , (List (List Nat, List Nat) ** expectListListEdges)
       , (List Nat ** expectListNat)
       ]
       content)
-    petri <- maybe (Left InvalidFSM) Right (convertExec $ petri')
+    petri <- mapError (InvalidFSM) (convertExec $ petri')
     let True = isJust $ composeWithId (Spec petri) (Path petri) (State petri)
-      | Left InvalidFSM
+      | Left InvalidPath
     pure ()
 
 
-toTDef : FSMCheck () -> Ty [] TResult
+toTDef : FSMCheck () -> Ty [String] TResult
 toTDef (Left err) = Right (toTDefErr err)
 toTDef (Right r) = Left r
 
@@ -87,8 +91,8 @@ main = do
       | _ => putStrLn "Usage: fsm-oracle FILE"
     content <-  (readFile filename)
     let asFSMCheck = either (const (Left FSError)) Right content
-    let checkedFSM = asFSMCheck >>= checkFSM
-    printLn (TermWrite.serialiseJSON [] [] TResult (toTDef checkedFSM))
+    let checkedFSM = asFSMCheck >>= checkPetri
+    printLn (TermWrite.serialiseJSON [String] [JString] TResult (toTDef checkedFSM))
 
 <<<<<<< HEAD
 =======

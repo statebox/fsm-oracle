@@ -28,7 +28,6 @@ import Data.Vect
 
 -- idris-ct
 import Graph.Graph
---import Graph.Path
 
 -- typedefs
 import Typedefs.Names
@@ -77,7 +76,7 @@ FSMExec = TProd [FSMSpec, FSMState, FSMPath]
 ||| Errors related to checking if a FSM description is valid
 data FSMError =
   ||| Error in the FSM description
-  InvalidFSM |
+  InvalidFSM String |
   ||| Error in the state transitions
   InvalidState |
   ||| Error in the execution path
@@ -87,23 +86,23 @@ data FSMError =
   ||| Error when reading the file
   FSError
 
-TFSMErr : TDefR 0
-TFSMErr = TMu [("InvalidFSM", T1),
+TFSMErr : TDefR 1
+TFSMErr = TMu [("InvalidFSM", RRef 1),
                ("InvalidState", T1),
                ("InvalidPath", T1),
                ("JSONError", T1),
                ("FSError", T1)
                ]
 
-toTDefErr : FSMError -> Ty [] TFSMErr
-toTDefErr InvalidFSM   = Inn (Left ())
-toTDefErr InvalidState = Inn (Right (Left ()))
-toTDefErr InvalidPath  = Inn (Right (Right (Left ())))
-toTDefErr JSONError    = Inn (Right (Right (Right (Left ()))))
-toTDefErr FSError      = Inn (Right (Right (Right (Right ()))))
+toTDefErr : FSMError -> Ty [String] TFSMErr
+toTDefErr (InvalidFSM s) = Inn (Left s)
+toTDefErr InvalidState   = Inn (Right (Left ()))
+toTDefErr InvalidPath    = Inn (Right (Right (Left ())))
+toTDefErr JSONError      = Inn (Right (Right (Right (Left ()))))
+toTDefErr FSError        = Inn (Right (Right (Right (Right ()))))
 
 Show FSMError where
-  show InvalidFSM   = "Invalid FSM"
+  show (InvalidFSM s) = "Invalid FSM: " ++ s
   show InvalidState = "Invalid state"
   show InvalidPath  = "Invalid path"
   show JSONError    = "JSON parsing error"
@@ -130,8 +129,6 @@ convertList' n edges = traverse (\x => natToFin x n) edges
 mkTGraph : (Nat, List (Nat, Nat)) -> Maybe (DPair Nat (\size => Graph (Fin size)))
 mkTGraph (size, edges) = do convertedEdges <- convertList size edges
                             pure (size ** MkGraph $ fromList convertedEdges)
-
-
 
 {-
 FSMSpec, FSMState, FSMPath
