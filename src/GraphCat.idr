@@ -62,7 +62,7 @@ constructNEPath g ((x, y) :: (y',z) :: pt) with (decEq y y')
 validateExec : IdrisType FSMExec -> FSMCheck (cat : Category ** a : obj cat ** b : obj cat ** mor cat a b)
 validateExec (spec, state, path) =
   do -- convert into a graph with `n` being the number of states
-     (m** MkGraph {n} edges) <- maybe (Left InvalidFSM) Right $ mkTGraph $ spec
+     (m** MkGraph {n} edges) <- maybe (Left $ InvalidFSM "Cannot convert to graph") Right $ mkTGraph $ spec
      -- get the inital state as a fin
      st <- maybe (Left InvalidState) Right $ natToFin state m
      -- Convert the edge list into fins

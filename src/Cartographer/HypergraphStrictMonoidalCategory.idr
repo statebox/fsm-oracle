@@ -31,20 +31,21 @@ hgPreserveId {s} {ai} {ao} as bs with (identity {s} {ai} {ao} as)
         `trans` permCompLeftId (permId (as ++ bs)))
       `trans` permCompLeftId (permId (as ++ bs))
 
+postulate
 hgPreserveCompose : {s : Type} -> {ai, ao : s -> List o} -> (a, b, c : (List o, List o))
                  -> (f : ProductMorphism (hypergraphCat s ai ao) (hypergraphCat s ai ao) a b)
                  -> (g : ProductMorphism (hypergraphCat s ai ao) (hypergraphCat s ai ao) b c)
                  -> add (compose (pi1 f) (pi1 g)) (compose (pi2 f) (pi2 g))
                   = compose (add (pi1 f) (pi2 f)) (add (pi1 g) (pi2 g))
-hgPreserveCompose a b c
-  (MkProductMorphism (MkHypergraph pf1 sf1) (MkHypergraph pf2 sf2))
-  (MkProductMorphism (MkHypergraph pg1 sg1) (MkHypergraph pg2 sg2))
-  = hypergraphEq p ?w
-  where
-    p : Perm ((pf1 ++ pg1) ++ (pf2 ++ pg2)) ((pf1 ++ pf2) ++ (pg1 ++ pg2))
-    p = rewriteLeft (sym $ appendAssociative pf1 pg1 (pf2 ++ pg2)) $
-        rewriteRight (sym $ appendAssociative pf1 pf2 (pg1 ++ pg2)) $
-        pf1 `permAddIdL` swapAddIdR pg1 pf2 pg2
+--hgPreserveCompose a b c
+--  (MkProductMorphism (MkHypergraph pf1 sf1) (MkHypergraph pf2 sf2))
+--  (MkProductMorphism (MkHypergraph pg1 sg1) (MkHypergraph pg2 sg2))
+--   = hypergraphEq p ?w
+--   where
+--     p : Perm ((pf1 ++ pg1) ++ (pf2 ++ pg2)) ((pf1 ++ pf2) ++ (pg1 ++ pg2))
+--     p = rewriteLeft (sym $ appendAssociative pf1 pg1 (pf2 ++ pg2)) $
+--         rewriteRight (sym $ appendAssociative pf1 pf2 (pg1 ++ pg2)) $
+--         pf1 `permAddIdL` swapAddIdR pg1 pf2 pg2
 
 hgTensor : (s : Type) -> (ai, ao : s -> List o) -> CFunctor (productCategory (hypergraphCat s ai ao) (hypergraphCat s ai ao)) (hypergraphCat s ai ao)
 hgTensor s ai ao = MkCFunctor

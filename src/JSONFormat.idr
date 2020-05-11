@@ -74,6 +74,6 @@ expectListListEdges : JSON -> Either String (List (List Nat, List Nat))
 expectListListEdges js = expectList js >>= traverse (expectPair expectListNat expectListNat)
 
 public export
-TResult : TDefR 0
+TResult : TDefR 1
 TResult = TSum [T1, TFSMErr]
 
