@@ -31,30 +31,40 @@ import TGraph
 
 import Typedefs.Typedefs
 
+
+public export
+ParseError : Type -> Type
+ParseError = Either String
+
+public export
+JSONParser : Type -> Type
+JSONParser t = JSON -> ParseError t
+
+
 listPairToJSON : List (Nat, Nat) -> JSON
 listPairToJSON xs = JArray $ map
   (\(a, b) => JObject [("input", JNumber $ cast a), ("output", JNumber $ cast b)]) xs
 
 export
-expectNat : JSON -> Maybe Nat
-expectNat (JNumber n) = if n < 0 then Nothing
-                                 else Just $ Prelude.toNat {a=Int} $ cast n
-expectNat _ = Nothing
+expectNat : JSONParser Nat
+expectNat (JNumber n) = if n < 0 then Left "Expected Nat"
+                                 else pure $ Prelude.toNat {a=Int} $ cast n
+expectNat _ = Left "Expected Nat"
 
-expectEdges : JSON -> Maybe (Nat, Nat)
+expectEdges : JSONParser (Nat, Nat)
 expectEdges (JObject [("input", a),("output", b)])= [| MkPair (expectNat a) (expectNat b) |]
-expectEdges _ = Nothing
+expectEdges _ = Left "Expected List of edges"
 
-expectList : JSON -> Maybe (List JSON)
-expectList (JArray ls) = Just ls
-expectList _ = Nothing
+expectList : JSONParser (List JSON)
+expectList (JArray ls) = pure ls
+expectList _ = Left "Expected List"
 
 export
-expectListNat : JSON -> Maybe (List Nat)
+expectListNat : JSONParser (List Nat)
 expectListNat js = expectList js >>= traverse expectNat
 
 export
-expectListEdges : JSON -> Maybe (List (Nat, Nat))
+expectListEdges : JSONParser (List (Nat, Nat))
 expectListEdges js = expectList js >>= traverse expectEdges
 
 public export
