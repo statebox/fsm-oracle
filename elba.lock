@@ -1,0 +1,67 @@
+[[packages]]
+id = 'fsm-oracle/fsm-oracle@dir+/Users/zephyz/Statebox/idris-fsm-oracle'
+version = '0.1.0'
+
+[[packages.dependencies]]
+id = 'statebox/idris-ct@git+https://github.com/statebox/idris-ct#fbc7f633e0d86bfe5b56a2c4b9db6f780d59106d'
+version = '0.1.0'
+
+[[packages.dependencies]]
+id = 'typedefs/typedefs@git+https://github.com/typedefs/typedefs#a0ce68a1e467ec845917cb1e1411250cfb89b881'
+version = '0.1.0'
+
+[[packages]]
+id = 'statebox/idris-ct@git+https://github.com/statebox/idris-ct#fbc7f633e0d86bfe5b56a2c4b9db6f780d59106d'
+version = '0.1.0'
+dependencies = []
+
+[[packages]]
+id = 'typedefs/typedefs@git+https://github.com/typedefs/typedefs#a0ce68a1e467ec845917cb1e1411250cfb89b881'
+version = '0.1.0'
+
+[[packages.dependencies]]
+id = 'HuwCampbell/idris-lens@git+https://github.com/andrevidela/idris-lens#0f8389baead6fd4344f37a58295b5edf0d76e1fc'
+version = '0.1.0'
+
+[[packages.dependencies]]
+id = 'ziman/idris-bytes@git+https://github.com/statebox/idris-bytes/#edbd9e64777829ee722e61f46447468776cf76ae'
+version = '0.1.0'
+
+[[packages.dependencies]]
+id = 'HuwCampbell/optparse-idris@git+https://github.com/statebox/optparse-idris#d8d58b0d2da8da81903a3c10042555b9efc428e7'
+version = '0.1.1'
+
+[[packages.dependencies]]
+id = 'gallais/idris-tparsec@git+https://github.com/gallais/idris-tparsec/#943c64dfcb4e1582696f68312fad88145dc3a8e4'
+version = '0.1.0'
+
+[[packages]]
+id = 'HuwCampbell/idris-lens@git+https://github.com/andrevidela/idris-lens#0f8389baead6fd4344f37a58295b5edf0d76e1fc'
+version = '0.1.0'
+
+[[packages.dependencies]]
+id = 'japesinator/Idris-Bifunctors@git+https://github.com/andrevidela/Idris-Bifunctors#f8dfb7f89d321afccf2086cb04c64f45a63d3712'
+version = '0.1.0'
+
+[[packages]]
+id = 'ziman/idris-bytes@git+https://github.com/statebox/idris-bytes/#edbd9e64777829ee722e61f46447468776cf76ae'
+version = '0.1.0'
+dependencies = []
+
+[[packages]]
+id = 'HuwCampbell/optparse-idris@git+https://github.com/statebox/optparse-idris#d8d58b0d2da8da81903a3c10042555b9efc428e7'
+version = '0.1.1'
+
+[[packages.dependencies]]
+id = 'HuwCampbell/idris-lens@git+https://github.com/andrevidela/idris-lens#0f8389baead6fd4344f37a58295b5edf0d76e1fc'
+version = '0.1.0'
+
+[[packages]]
+id = 'gallais/idris-tparsec@git+https://github.com/gallais/idris-tparsec/#943c64dfcb4e1582696f68312fad88145dc3a8e4'
+version = '0.1.0'
+dependencies = []
+
+[[packages]]
+id = 'japesinator/Idris-Bifunctors@git+https://github.com/andrevidela/Idris-Bifunctors#f8dfb7f89d321afccf2086cb04c64f45a63d3712'
+version = '0.1.0'
+dependencies = []

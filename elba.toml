@@ -1,0 +1,14 @@
+[package]
+name = "fsm-oracle/fsm-oracle"
+version = "0.1.0"
+authors = []
+
+[dependencies]
+"typedefs/typedefs" = { git = "https://github.com/typedefs/typedefs" , tag="a0ce68a1e467ec845917cb1e1411250cfb89b881"}
+"statebox/idris-ct" = { git = "https://github.com/statebox/idris-ct" , tag="master"}
+
+[[targets.bin]]
+path = "src"
+name = "fsm-oracle"
+main = "Main"
+idris_opts = ["-p", "contrib", "-p", "idris-ct"]
