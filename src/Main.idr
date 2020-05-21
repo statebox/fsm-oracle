@@ -35,10 +35,12 @@ import Typedefs.Typedefs
 import Typedefs.TermParse
 import Typedefs.TermWrite
 
+-- FSM-Oracle
 import TGraph
 import PetriGraph
 import PetriFormat
 import GraphCat
+import Utils.Either
 
 -- base
 import Data.Vect
@@ -48,63 +50,61 @@ import Language.JSON
 %access public export
 %default total
 
-mapError : (a -> b) -> Either a c -> Either b c
-mapError f (Left a) = Left (f a)
-mapError _ (Right v) = Right v
+checkFSM : JSON -> FSMCheck ()
+checkFSM content = do
+    fsm <- mapLeft InvalidFSM (Typedefs.TermParse.deserialiseJSON FSMExec
+      [ (Nat ** expectNat)
+      , (List (Nat, Nat) ** expectListEdges)
+      , (List Nat ** expectListNat)
+      ]
+      content)
+    (cat ** a ** b ** m) <- validateExec fsm
+    let v = lastStep cat a b m
+    pure ()
 
--- checkFSM : String -> FSMCheck ()
--- checkFSM fileContent = do
---     content <- maybe (Left JSONError) Right (parse fileContent)
---     fsm <- mapErro (const $ InvalidFSM "could not convert from TDef") (Typedefs.TermParse.deserialiseJSON FSMExec
---       [ (Nat ** expectNat)
---       , (List (Nat, Nat) ** expectListEdges)
---       , (List Nat ** expectListNat)
---       ]
---       content)
---     (cat ** a ** b ** m) <- validateExec fsm
---     let v = lastStep cat a b m
---     pure ()
-
-checkPetri : String -> FSMCheck ()
-checkPetri fileContent = do
-    content <- maybe (Left JSONError) Right (parse fileContent)
-    petri' <- mapError (const $ InvalidFSM "could not convert from TDef") (Typedefs.TermParse.deserialiseJSON TPetriExec
+checkPetri : JSON -> FSMCheck ()
+checkPetri content = do
+    petri' <- mapLeft InvalidFSM (Typedefs.TermParse.deserialiseJSON TPetriExec
       [ (Nat ** expectNat)
       , (List (List Nat, List Nat) ** expectListListEdges)
       , (List Nat ** expectListNat)
       ]
       content)
-    petri <- mapError (InvalidFSM) (convertExec $ petri')
+    petri <- mapLeft InvalidFSM (convertExec $ petri')
     let True = isJust $ composeWithId (Spec petri) (Path petri) (State petri)
       | Left InvalidPath
     pure ()
-
 
 toTDef : FSMCheck () -> Ty [String] TResult
 toTDef (Left err) = Right (toTDefErr err)
 toTDef (Right r) = Left r
 
+data OracleMode = FSM | Petri
+
+parseMode : String -> Maybe OracleMode
+parseMode "-f" = Just FSM
+parseMode "--fsm" = Just FSM
+parseMode "-p" = Just Petri
+parseMode "-petri" = Just Petri
+parseMode _ = Nothing
+
+printHelp : IO ()
+printHelp = putStrLn "Usage: fsm-oracle [--fsm, --petri] FILE"
+
+pickChecker : OracleMode -> JSON -> FSMCheck ()
+pickChecker FSM = checkFSM
+pickChecker Petri = checkPetri
+
 partial
 main : IO ()
 main = do
-    [_,filename] <- getArgs
-      | _ => putStrLn "Usage: fsm-oracle FILE"
-    content <-  (readFile filename)
-    let asFSMCheck = either (const (Left FSError)) Right content
-    let checkedFSM = asFSMCheck >>= checkPetri
-    printLn (TermWrite.serialiseJSON [String] [JString] TResult (toTDef checkedFSM))
-
-<<<<<<< HEAD
-=======
--- partial
--- main : IO ()
--- main = do
---     [_,filename] <- getArgs
---       | _ => putStrLn "Usage: fsm-oracle FILE"
---     content <-  (readFile filename)
---     let asFSMCheck = either (const (Left FSError)) Right content
---     let checkedFSM = asFSMCheck >>= checkFSM
---     printLn (TermWrite.serialiseJSON [] [] TResult (toTDef checkedFSM))
---
->>>>>>> Add Cartographer files and implemet checking procedure for nets
+    [_, mode, filename] <- getArgs
+      | printHelp
+    let (Just pmode) = parseMode mode
+      | printHelp
+    content <- readFile filename
+    let result = do fileContent <- mapLeft (const FSError) content
+                    jsonContent <- maybeToEither JSONError (parse fileContent)
+                    (pickChecker pmode) jsonContent
+    printLn (TermWrite.serialiseJSON [String] [JString] TResult (toTDef result))
 

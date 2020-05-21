@@ -46,15 +46,26 @@ permCompRightId {bs} (Ins ab' sw) with (shuffle sw (permId bs)) proof shprf
   | Ins bc' sw' = case insInjective $ trans shprf (shuffleId sw) of
     (Refl, Refl, Refl) => rewrite permCompRightId ab' in Refl
 
+flipShuffle : Perm as bs -> SwapDown bs cs -> Perm as cs
+flipShuffle Nil swap {cs=[]}= Nil
+flipShuffle Nil swap {cs=(x :: xs)} impossible
+flipShuffle (Ins p HereS) swap = Ins p swap
+flipShuffle (Ins p (ThereS s)) swap =
+  case swComb s swap of SW2 sw1 sw2 => Ins (flipShuffle p sw1) sw2
+
+
+assocShuffle : (s1 : SwapDown as bs) -> (p : Perm bs cs) -> (s2 : SwapDown cs ds) ->
+               shuffle s1 (flipShuffle p s2) = flipShuffle (shuffle s1 p) s2
+
+
 postulate
 shuffleComp : (abb : SwapDown as bs) -> (bc : Perm bs cs) -> (cd : Perm cs ds)
            -> Ins bc' ayc = shuffle abb bc
            -> Ins {ys=ds1} cd' ad1d = shuffle ayc cd
            -> Ins {ys=ds2} bd' ad2d = shuffle abb (permComp bc cd)
            -> (ds1 = ds2, ad1d = ad2d, bd' = permComp bc' cd')
---shuffleComp  HereS       (Ins _ swx)   cd Refl eq2 eq3 with (shuffle swx cd)
---  | Ins bc' sw' with (eq2, eq3)
---    | (Refl, Refl) = (Refl, Refl, Refl)
+shuffleComp  sw (Ins p1 sw1) (Ins p2 sw2) prf1 prf2 prf3 {bd'} {bc'} {cd'} = ?shuffHole
+ -- let p = the (bd' = permComp bc' cd') (assocShuffle ?sw1 ?pe1 ?sw2) in ?shuff
 --shuffleComp {ds} (ThereS aab) (Ins {ys=zs} bz bzc) cd eq1  eq2 eq3 with (shuffle aab bz) proof bcPrf
 --  | Ins {ys=xs} ax axz with (shuffle bzc cd)
 --    | Ins {ys=us} zu bud with (shuffle aab (permComp bz zu)) proof bdPrf

@@ -1,5 +1,5 @@
 [[packages]]
-id = 'fsm-oracle/fsm-oracle@dir+/Users/zephyz/Statebox/idris-fsm-oracle'
+id = 'fsm-oracle/fsm-oracle@dir+/Users/av82/statebox/fsm-oracle'
 version = '0.1.0'
 
 [[packages.dependencies]]
@@ -65,3 +65,4 @@ dependencies = []
 id = 'japesinator/Idris-Bifunctors@git+https://github.com/andrevidela/Idris-Bifunctors#f8dfb7f89d321afccf2086cb04c64f45a63d3712'
 version = '0.1.0'
 dependencies = []
+es = []

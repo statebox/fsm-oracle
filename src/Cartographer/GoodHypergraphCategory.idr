@@ -72,24 +72,15 @@ goodHypergraphCatCompose : {s : Type} -> {ai, ao : s -> List o} -> (a,b,c : List
     -> ((~+~>) {s} {ai} {ao} a c)
 goodHypergraphCatCompose _ _ _ f g = Element (compose (getWitness f) (getWitness g)) (HComp (getProof f) (getProof g))
 
-goodHypergraphCatComposeProof :  (a21 : List o) ->
-       (b22 : List o) ->
-       (c23 : List o) ->
-       (d : List o) ->
-       (f25 : Subset (Hypergraph sigma arityIn arityOut a21 b22)
-                     GoodHypergraph) ->
-       (g26 : Subset (Hypergraph sigma arityIn arityOut b22 c23)
-                     GoodHypergraph) ->
-       (h : Subset (Hypergraph sigma arityIn arityOut c23 d)
-                   GoodHypergraph) ->
-       Element (compose (getWitness f25)
-                        (compose (getWitness g26) (getWitness h)))
-               (HComp (getProof f25) (HComp (getProof g26) (getProof h))) =
-       Element (compose (compose (getWitness f25) (getWitness g26))
-                        (getWitness h))
-               (HComp (HComp (getProof f25) (getProof g26)) (getProof h))
+goodHypergraphCatComposeProof : (a, b, c, d : List o) ->
+                                (f : Subset (Hypergraph sigma arityIn arityOut a b) GoodHypergraph) ->
+                                (g : Subset (Hypergraph sigma arityIn arityOut b c) GoodHypergraph) ->
+                                (h : Subset (Hypergraph sigma arityIn arityOut c d) GoodHypergraph) ->
+                                Element (compose (getWitness f) (compose (getWitness g) (getWitness h)))
+                                        (HComp (getProof f) (HComp (getProof g) (getProof h))) =
+                                Element (compose (compose (getWitness f) (getWitness g)) (getWitness h)) (HComp (HComp (getProof f) (getProof g)) (getProof h))
 goodHypergraphCatComposeProof a b c d (Element f ff) (Element g gg) (Element h hh) =
-  subsetEq (hgAssoc a b c d f g h)
+    subsetEq (hgAssoc a b c d f g h)
 
 goodHypergraphCat : (sigma : Type) -> (arityIn, arityOut : sigma -> List o) -> Category
 goodHypergraphCat {o} sigma arityIn arityOut = MkCategory
@@ -100,6 +91,7 @@ goodHypergraphCat {o} sigma arityIn arityOut = MkCategory
   (\a, b, (Element g gg) => subsetEq (hgLeftId a b g))
   (\a, b, (Element g gg) => subsetEq (hgRightId a b g))
   goodHypergraphCatComposeProof
+
 goodSingleton : {s : Type} -> {ai, ao : s -> List o} -> (edge : s) -> mor (goodHypergraphCat s ai ao) (ai edge) (ao edge)
 goodSingleton x = Element (Hypergraph.singleton x) (Singleton x)
 
@@ -135,8 +127,8 @@ goodHypergraphTensorCompose : (a, b, c : (List o, List o)) ->
                 (goodHypergraphTensorMor a b f)
                 (goodHypergraphTensorMor b c g)
 goodHypergraphTensorCompose a b c f g =
-  subsetEq (hgPreserveCompose a b c (MkProductMorphism (getWitness $ pi1 f) (getWitness $ pi2 f))
-                                    (MkProductMorphism (getWitness $ pi1 g) (getWitness $ pi2 g)))
+  subsetEq (hgPreserveCompose a b c (MkProductMorphism (Subset.getWitness $ pi1 f) (Subset.getWitness $ pi2 f))
+                                    (MkProductMorphism (Subset.getWitness $ pi1 g) (Subset.getWitness $ pi2 g)))
 goodHyperGraphTensor : (s : Type) -> (ai, ao : s -> List o) ->
                        CFunctor (productCategory (goodHypergraphCat s ai ao) (goodHypergraphCat s ai ao))
                                 (goodHypergraphCat s ai ao)
@@ -152,11 +144,10 @@ composeGoodHypergraphProof : (a, b, c : List o) ->
                       (g : Subset (Hypergraph s ai ao a b) GoodHypergraph) ->
                       (h : Subset (Hypergraph s ai ao c d) GoodHypergraph) ->
                       (k : Subset (Hypergraph s ai ao e f) GoodHypergraph) ->
-                      Element (add (getWitness g) (add (getWitness h) (getWitness k)))
+                      Element (add (Subset.getWitness g) (add (Subset.getWitness h) (Subset.getWitness k)))
                               (VComp (getProof g) (VComp (getProof h) (getProof k))) =
-                      Element (add (add (getWitness g) (getWitness h)) (getWitness k))
+                      Element (add (add (Subset.getWitness g) (Subset.getWitness h)) (Subset.getWitness k))
                               (VComp (VComp (getProof g) (getProof h)) (getProof k))
-composeGoodHypergraphProof fi fo gi go hi ho (Element f ff) (Element g gg) (Element h hh) = ?what -- subsetEq (hgTensorAssociative fi fo gi go hi ho f g h))
 
 goodHypergraphSMC : (sigma : Type) -> (arityIn, arityOut : sigma -> List o) -> StrictMonoidalCategory
 goodHypergraphSMC s ai ao = MkStrictMonoidalCategory

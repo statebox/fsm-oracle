@@ -11,4 +11,4 @@ authors = []
 path = "src"
 name = "fsm-oracle"
 main = "Main"
-idris_opts = ["-p", "contrib", "-p", "idris-ct"]
+idris_opts = ["-p", "contrib"]
