@@ -39,10 +39,6 @@ public export
 JSONParser : Type -> Type
 JSONParser t = JSON -> ParseError t
 
-listPairToJSON : List (Nat, Nat) -> JSON
-listPairToJSON xs = JArray $ map
-  (\(a, b) => JObject [("input", JNumber $ cast a), ("output", JNumber $ cast b)]) xs
-
 export
 expectNat : JSONParser Nat
 expectNat (JNumber n) = if n < 0 then Left "Expected Nat"
