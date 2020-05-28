@@ -30,6 +30,9 @@ data SwapDown : List t -> List t -> Type where
   HereS  : SwapDown (a::as) (a::as)
   ThereS : SwapDown (a::as) bs -> SwapDown (a::b::as) (b::bs)
 
+getVal : {as : List t} -> SwapDown (a :: as) bs -> t
+getVal _ {a} = a
+
 Uninhabited (SwapDown (x::xs) []) where
   uninhabited  HereS     impossible
   uninhabited (ThereS _) impossible
