@@ -69,26 +69,97 @@ Input has to be fed as JSON, and is converted to Idris terms and types through t
 
 ### Petri net execution format documentation
 
-The internal input format is a term of type `PetriExec`, and is a record consisting of  a three things: A  term of type `PetriSpec k`, one of type
-`PetriPath (Places Spec) k` and one of type `PetriState Spec`.
+Overall, an input as to be passed by giving the following JSON:
 
-#### `PetriSpec k`
-Internally, the type of `PetriSpec k` depends on a natural number `k`. It is a record consisting of `Places`, of type `Nat`, and `Edges`, of type `Vect k (List (Fin Places), List (Fin Places))`. `Places` enumerates the number of places in the net, while `Edges` consists of `k` pairs `(List (Fin Places), List (Fin Places))`. Each pair represents an edge, with the first component listing its input places, and the second component listing its output places.
+```javascript
+{
+  "_0": spec
+  "_1": state
+  "_2": path
+}
+```
+where `spec`, `state` and `path` are defined below.
 
-A specification is passed to the oracle using lists of pairs. For instance, `(5,[([2,1],[1]),([4],[2,0]),([0], [1,2,3])])` specifies a Petri net of type  `PetriSpec 3`  having:
+This will be parsed into a term  having type `PetriExec`. This is a record consisting of  a three things: A  term of type `PetriSpec k`, one of type `PetriState spec` and one of type
+`PetriPath (Places spec) k`.
+
+#### `spec`
+Internally, specifications have type of `PetriSpec k`, which is a type depending on a natural number `k`. It is a record consisting of `Places`, of type `Nat`, and `Edges`, of type `Vect k (List (Fin Places), List (Fin Places))`. `Places` enumerates the number of places in the net, while `Edges` consists of `k` pairs `(List (Fin Places), List (Fin Places))`. Each pair represents an edge, with the first component listing its input places, and the second component listing its output places.
+
+**A specification is passed to the oracle using JSON, and representing vertexes and edges as lists of pairs**. For instance, consider
+```javascript
+{
+  "_0": 5,
+  "_1": [
+          {"_0": [0], "_1":[]},
+          {"_0" : [1,1,1], "_1" : [0,2,3]},
+          {"_0": [2,3,3], "_1" : [4]},
+          {"_0": [1], "_1" : [4,3]},
+          {"_0": [4,4,4], "_1": [4]},
+          {"_0": [], "_1" : [4,4]}
+        ]
+}
+```
+This piece of JSON defines what has to be put in place of `spec` in
+```javascript
+{
+  "_0": spec
+  "_1": state
+  "_2": path
+}
+```
+It specifies the Petri net of type `PetriSpec 6`, having:
 - `5` vertexes, enumerated `0,1,2,3,4`
-- `3` transitions: One going from `2,1` to `1`, one going from `4` to `2,0` and one going from `0` to `1,2,3`. You can denote transitions that produce more than
-  one token in the same place by just repeating the token itself, as in `([4], [2,2,0])`.
+- `6` transitions: One going from `0` to nothing (no outputs), one going from `1,1,1` to `0,2,3`, and so on.
+You can denote transitions that produce more than
+  one token in the same place by just repeating the token itself, 
+  as in `{"_0": [2,3,3], "_1" : [4]}` in the example above. 
+  Similarly, an empty list signifies empty inputs or outputs. 
 
-The `k` parameter is automatically inferred at runtime by parsing the length of the edgelist. The edgelist given at runtime has to be in range as specified by the number of vertexes. Failing to do so produces a type mismatch. As such, a specification such as  `(5,[([5,1],[1]),([4],[2,0]),([0], [1,2,3])])`  is invalid (input of the first transition is not in range), and will produce an error.
+Notice that the `k` parameter in `PetriSpec k` is automatically 
+inferred at runtime by parsing the length of the edgelist. 
+For instance, in the example above the inferred parameter is `6`, since the list 
 
-#### `PetriState`
-The type of `PetriState` is `List (Fin (Places spec))`, with `spec` having type `PetriSpec k` for some `k`. This specifies an initial list of places from which the computation has to start.
+```javascript
+[
+  {"_0": [0], "_1":[]},
+  {"_0" : [1,1,1], "_1" : [0,2,3]},
+  {"_0": [2,3,3], "_1" : [4]},
+  {"_0": [1], "_1" : [4,3]},
+  {"_0": [4,4,4], "_1": [4]},
+  {"_0": [], "_1" : [4,4]}
+]
+```
+has `6` entries.
 
-Again, the initial state specified in the input has to be in range as specified by the number of vertexes in `PetriSpec`. So, for instance, `[4,2,0]` is a valid state for the FSM `(5,[(2,1),(4,2),(0, 3)])`, while `[5]` is not, and will produce an error.
+The edgelist given at runtime has to be in range as specified by the number of vertexes. Failing to do so produces a type mismatch. As such, a specification such as 
 
-#### `PetriPath`
-An execution for a Petri net is of type `Tree (Fin places) (Fin k)`, where `places` and `k` are the number of places and transitions given in a specification. A path consists in a tree indexed by two natural numbers `o` and `m`
+```javascript
+{
+  "_0": 5,
+  "_1": [
+          {"_0": [5], "_1":[]}
+        ]
+}
+```
+is invalid (input of the first transition is not in range), and will produce an error.
+
+#### `state`
+Internally, a starting state has type `PetriState spec`, that is defined to be `List (Fin (Places spec))`, with `spec` having type `PetriSpec k` for some `k`. This specifies an initial list of places from which the computation has to start. For instance, `[3,4,4,1]` means "a token in `3`, two in `4`, one in `1`".
+
+**In json, this is just specified using list notation.** For instance, `[3,4,4,1]` can be put in place of `state` in
+```javascript
+{
+  "_0": spec
+  "_1": state
+  "_2": path
+}
+```
+
+Again, the initial state specified in the input has to be in range as specified by the number of vertexes in `PetriSpec`. So, for instance, `[4,2,0]` is a valid state for the spec example in the previous section, while `[5]` is not, and will produce an error.
+
+#### `path`
+Internally, a path has type `PetriPath places k`. This is used to define a type `Tree (Fin places) (Fin k)`, where `places` and `k` represent the number of places and transitions given in a specification. A path consists in a tree indexed by two natural numbers `o` and `m`
 ```
 data Tree o m = Tensor (Tree o m) (Tree o m)
               | Sequence (Tree o m) (Tree o m)
@@ -99,93 +170,125 @@ data Tree o m = Tensor (Tree o m) (Tree o m)
 
 #### Examples
 
-The following define valid inputs:
-```
-((5, [(1,1),(3,4),(2,1)]) , 3, [1])
-((5, [(1,1),(1,1),(2,1)]) , 2, [2,1,0])
-```
-
-The following define invalid inputs:
-
-Invalid `FSMSpec`:
-`((5, [(1,1),(5,4),(2,1)]) , 2, [2,0,1])`
-
-Invalid `FSMState`:
-`((5, [(1,1),(3,4),(2,1)]) , 6, [2,1,0])`
-
-Invalid `FSMPath`:
-`((3,[]), 1, [1])`
-
-#### JSON Encoding
-
-Terms of type `FSMSpec` as described above have to be fed as inputs, encoded in JSON format. The way JSON encoding is implemented can be found in the file `JSONFormat.idr`.
-
-We do use the notation:
-
+The following defines a valid input:
 ```javascript
 {
-  "_1":
-  "_2":
-  ...
-  "_n":
+    "_0": {
+        "_0": 5,
+        "_1": [
+                {"_0": [0], "_1":[]},
+                {"_0" : [1,1,1], "_1" : [0,2,3]},
+                {"_0": [2,3,3], "_1" : [4]},
+                {"_0": [1], "_1" : [4,3]},
+                {"_0": [4,4,4], "_1": [4]},
+                {"_0": [], "_1" : [4,4]}
+              ]
+          },
+    "_1": [0],
+    "_2": {
+        "inn": {
+                  "_3": 0
+               }
+          }
 }
 ```
-To encode tuples, and the usual square bracket notation for lists. Pairs defining edges are encoded as:
+
+Instead, the following defines an invalid input:
 ```javascript
 {
-  "input":
-  "output":
+    "_0": {
+        "_0": 1,
+        "_1": []
+    },
+    "_1": [],
+    "_2": {
+        "inn": {
+            "_1": {
+                "_1": {
+                    "_1": {
+                        "_0": 0
+                    }
+                }
+            }
+        }
+    }
 }
 ```
-Where `input` and `output` specify the endpoints of the edge.
-
-Applying these definitions recursively, any term of type `FSMExec` can be encoded. For example, the following is the JSON encoding of the input execution `((5, [(1,1),(3,4),(2,1)]) , 2, [2,0,0])`:
-
-
-```javascript
-{
-  "_0": {
-    "_0": 5,
-    "_1": [
-      {
-       "input": 1,
-       "output": 1
-      },
-      {
-       "input": 3,
-       "output": 4
-      },
-      {
-       "input": 2,
-       "output": 1
-      }]
-  },
-  "_1": 2,
-  "_2": [2, 0, 0]
-}
- ```
 
  ### FSM net execution format documentation
 
-The internal input format is a term of type `FSMExec`, and is of the form
+For FSMs, the internal input format is a term of type `FSMExec`, and is of the form
 `(FSMSpec, FSMState, FSMPath)`. It consists of three things: A specification of the FSM on which executions are run (`FSMSpec`), an initial state (`FSMState`), and a list of actions to evaluate (`FSMPath`).
 
-#### `FSMSpec`
+This is fed exactly as we do for Petri nets, using the JSON:
+```javascript
+{
+  "_0": spec
+  "_1": state
+  "_2": path
+}
+```
+
+For FSMs, though, the definition of `spec`, `state` and `path` are different, and given below:
+
+#### `spec`
 The type of `FSMSpec` is `(Nat,List (Nat Nat))`: The FSM is specified as a pair, where the first component denotes the number of states (vertexes) of the FSM, while the second is a list of pairs of vertexes (edgelist) denoting the possible actions.
 
 For instance, `(5,[(2,1),(4,2),(0, 3)])` specifies a FSM having `5` vertexes, enumerated `0,1,2,3,4`, and three possible actions: One going from `2` to `1`, one going from `4` to `2` and one going from `0` to `3`.
 
+  **A specification is passed to the oracle using JSON, and representing vertexes and edges as lists of pairs**. For instance, consider
+```javascript
+    "_0": 5,
+    "_1": [
+      {
+       "input": 2,
+       "output": 1
+      },
+      {
+       "input": 4,
+       "output": 2
+      },
+      {
+       "input": 0,
+       "output": 3
+      }]
+  ```
+This piece of JSON defines what has to be put in place of `spec` in
+```javascript
+{
+  "_0": spec
+  "_1": state
+  "_2": path
+}
+```
+
 The edgelist has to be in range as specified by the number of vertexes. As such, specifications such as `(5,[(7,1),(4,2),(0, 3)])`
 or `(5,[(5,5)])` are considered invalid and will produce an error.
 
-#### `FSMState`
-The type of `FSMState` is `Nat`. This specifies an initial vertex from which the computation has to start.
 
+#### `state`
+The type of `FSMState` is `Nat`. This specifies an initial vertex from which the computation has to start. In the JSON input we represent it just as it is.
+Hence, any natural number can be put in place of `state` in the JSON:
+```javascript
+{
+  "_0": spec
+  "_1": state
+  "_2": path
+}
+```
 The initial state has to be in range as specified by the number of vertexes in `FSMSpec`. So, for instance, `4` is a valid state for the FSM `(5,[(2,1),(4,2),(0, 3)])`, while `5` is not, and will produce an error.
 
-#### `FSMPath`
+#### `path`
 The type of `FSMPath` is `List Nat`. It specifies a computation to evaluate.
 
+In JSON we represent it just as a list. As such, any list of natural numbers can be put in place of `path` in the JSON:
+```javascript
+{
+  "_0": spec
+  "_1": state
+  "_2": path
+}
+```
 Each number in the list has to be in range as specified by the length of the edgelist in `FSMSpec`. As such, `[1,0]` is a valid path for the FSM `(5,[(2,1),(4,2),(0, 3)])` (indicating to first use the action going from `4` to `2` and then the one going from `2` to `1`), while `[3]` is not.
 
 #### Examples
@@ -206,55 +309,6 @@ Invalid `FSMState`:
 
 Invalid `FSMPath`:
 `((3,[]), 1, [1])`
-
-#### JSON Encoding
-
-Terms of type `FSMSpec` as described above have to be fed as inputs, encoded in JSON format. The way JSON encoding is implemented can be found in the file `JSONFormat.idr`.
-
-We do use the notation:
-
-```javascript
-{
-  "_1":
-  "_2":
-  ...
-  "_n":
-}
-```
-To encode tuples, and the usual square bracket notation for lists. Pairs defining edges are encoded as:
-```javascript
-{
-  "input":
-  "output":
-}
-```
-Where `input` and `output` specify the endpoints of the edge.
-
-Applying these definitions recursively, any term of type `FSMExec` can be encoded. For example, the following is the JSON encoding of the input execution `((5, [(1,1),(3,4),(2,1)]) , 2, [2,0,0])`:
-
-
-```javascript
-{
-  "_0": {
-    "_0": 5,
-    "_1": [
-      {
-       "input": 1,
-       "output": 1
-      },
-      {
-       "input": 3,
-       "output": 4
-      },
-      {
-       "input": 2,
-       "output": 1
-      }]
-  },
-  "_1": 2,
-  "_2": [2, 0, 0]
-}
- ```
 
 ### License
 
