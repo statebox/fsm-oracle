@@ -108,7 +108,7 @@ permAddAssociativeMor {as=a::as} {bs} {cs} {ds} {es} {fs} (Ins {ys} pab s) pcd p
 
 permutationsSMC : (o : Type) -> StrictMonoidalCategory
 permutationsSMC o = MkStrictMonoidalCategory
-  (permutationsCat o)
+  (PermutationsCategory.permutationsCat o)
   (permTensor o)
   []
   (\as => Refl)

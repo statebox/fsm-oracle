@@ -66,7 +66,6 @@ shuffleComp : (abb : SwapDown as bs) -> (bc : Perm bs cs) -> (cd : Perm cs ds)
            -> (ds1 = ds2, ad1d = ad2d, bd' = permComp bc' cd')
 shuffleComp  sw (Ins p1 sw1) (Ins p2 sw2) prf1 prf2 prf3 {bd'} {bc'} {cd'} = ?shuffHole
  -- let p = the (bd' = permComp bc' cd') (assocShuffle ?sw1 ?pe1 ?sw2) in ?shuff
-{-
 --shuffleComp {ds} (ThereS aab) (Ins {ys=zs} bz bzc) cd eq1  eq2 eq3 with (shuffle aab bz) proof bcPrf
 --  | Ins {ys=xs} ax axz with (shuffle bzc cd)
 --    | Ins {ys=us} zu bud with (shuffle aab (permComp bz zu)) proof bdPrf
@@ -110,4 +109,3 @@ permutationsCat o = MkCategory
   (\_, _ => permCompLeftId)
   (\_, _ => permCompRightId)
   (\_, _, _, _ => permAssoc)
-        -}

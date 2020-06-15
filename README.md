@@ -56,9 +56,9 @@ Where `x` denotes an error code according to the following table:
 
 |Error Code|Description|
 |---|---|
-|`0`| The Petri/FSM specification is invalid.   |
-|`1`| The Petri/FSM initial state is invalid.   |
-|`2`| The Petri/FSM path is invalid.   |
+|`0`| The specification is invalid.   |
+|`1`| The initial state is invalid.   |
+|`2`| The path is invalid.   |
 |`3`|Input cannot be parsed as JSON.   |
 |`4`|Filesystem error: File cannot be read.   |
 
@@ -112,13 +112,13 @@ It specifies the Petri net of type `PetriSpec 6`, having:
 - `5` vertexes, enumerated `0,1,2,3,4`
 - `6` transitions: One going from `0` to nothing (no outputs), one going from `1,1,1` to `0,2,3`, and so on.
 You can denote transitions that produce more than
-  one token in the same place by just repeating the token itself, 
-  as in `{"_0": [2,3,3], "_1" : [4]}` in the example above. 
-  Similarly, an empty list signifies empty inputs or outputs. 
+  one token in the same place by just repeating the token itself,
+  as in `{"_0": [2,3,3], "_1" : [4]}` in the example above.
+  Similarly, an empty list signifies empty inputs or outputs.
 
-Notice that the `k` parameter in `PetriSpec k` is automatically 
-inferred at runtime by parsing the length of the edgelist. 
-For instance, in the example above the inferred parameter is `6`, since the list 
+Notice that the `k` parameter in `PetriSpec k` is automatically
+inferred at runtime by parsing the length of the edgelist.
+For instance, in the example above the inferred parameter is `6`, since the list
 
 ```javascript
 [
@@ -132,7 +132,7 @@ For instance, in the example above the inferred parameter is `6`, since the list
 ```
 has `6` entries.
 
-The edgelist given at runtime has to be in range as specified by the number of vertexes. Failing to do so produces a type mismatch. As such, a specification such as 
+The edgelist given at runtime has to be in range as specified by the number of vertexes. Failing to do so produces a type mismatch. As such, a specification such as
 
 ```javascript
 {

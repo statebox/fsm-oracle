@@ -35,10 +35,12 @@ import Typedefs.Typedefs
 import Typedefs.TermParse
 import Typedefs.TermWrite
 
+-- FSM-Oracle
 import TGraph
 import PetriGraph
 import PetriFormat
 import GraphCat
+import Utils.Either
 
 -- base
 import Data.Vect
@@ -48,13 +50,9 @@ import Language.JSON
 %access public export
 %default total
 
-mapError : (a -> b) -> Either a c -> Either b c
-mapError f (Left a) = Left (f a)
-mapError _ (Right v) = Right v
-
 checkFSM : JSON -> FSMCheck ()
 checkFSM content = do
-    fsm <- mapError InvalidFSM (Typedefs.TermParse.deserialiseJSON FSMExec
+    fsm <- mapLeft InvalidFSM (Typedefs.TermParse.deserialiseJSON FSMExec
       [ (Nat ** expectNat)
       , (List (Nat, Nat) ** expectListEdges)
       , (List Nat ** expectListNat)
@@ -66,13 +64,13 @@ checkFSM content = do
 
 checkPetri : JSON -> FSMCheck ()
 checkPetri content = do
-    petri' <- mapError InvalidFSM (Typedefs.TermParse.deserialiseJSON TPetriExec
+    petri' <- mapLeft InvalidFSM (Typedefs.TermParse.deserialiseJSON TPetriExec
       [ (Nat ** expectNat)
       , (List (List Nat, List Nat) ** expectListListEdges)
       , (List Nat ** expectListNat)
       ]
       content)
-    petri <- mapError InvalidFSM (convertExec $ petri')
+    petri <- mapLeft InvalidFSM (convertExec $ petri')
     let True = isJust $ composeWithId (Spec petri) (Path petri) (State petri)
       | Left InvalidPath
     pure ()
@@ -105,7 +103,7 @@ main = do
     let (Just pmode) = parseMode mode
       | printHelp
     content <- readFile filename
-    let result = do fileContent <- mapError (const FSError) content
+    let result = do fileContent <- mapLeft (const FSError) content
                     jsonContent <- maybeToEither JSONError (parse fileContent)
                     (pickChecker pmode) jsonContent
     printLn (TermWrite.serialiseJSON [String] [JString] TResult (toTDef result))
