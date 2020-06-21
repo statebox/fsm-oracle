@@ -34,6 +34,8 @@ import Discrete.DiscreteCategory
 import Typedefs.Typedefs
 import Typedefs.TermParse
 import Typedefs.TermWrite
+import Typedefs.Idris
+import Typedefs.Library
 
 -- FSM-Oracle
 import TGraph
@@ -52,30 +54,28 @@ import Language.JSON
 
 checkFSM : JSON -> FSMCheck ()
 checkFSM content = do
-    fsm <- mapLeft InvalidFSM (Typedefs.TermParse.deserialiseJSON FSMExec
-      [ (Nat ** expectNat)
-      , (List (Nat, Nat) ** expectListEdges)
-      , (List Nat ** expectListNat)
-      ]
-      content)
+    fsm <- mapLeft InvalidFSM (Typedefs.TermParse.deserialise
+                              StandardParsers
+                              []
+                              FSMExec
+                              content)
     (cat ** a ** b ** m) <- validateExec fsm
     let v = lastStep cat a b m
     pure ()
 
 checkPetri : JSON -> FSMCheck ()
 checkPetri content = do
-    petri' <- mapLeft InvalidFSM (Typedefs.TermParse.deserialiseJSON TPetriExec
-      [ (Nat ** expectNat)
-      , (List (List Nat, List Nat) ** expectListListEdges)
-      , (List Nat ** expectListNat)
-      ]
-      content)
+    petri' <- mapLeft InvalidFSM (Typedefs.TermParse.deserialise
+                                 StandardParsers
+                                 [liftParse expectNat]
+                                 TPetriExec
+                                 content)
     petri <- mapLeft InvalidFSM (convertExec $ petri')
     let True = isJust $ composeWithId (Spec petri) (Path petri) (State petri)
       | Left InvalidPath
     pure ()
 
-toTDef : FSMCheck () -> Ty [String] TResult
+toTDef : FSMCheck () -> Ty' StandardIdris [] TResult
 toTDef (Left err) = Right (toTDefErr err)
 toTDef (Right r) = Left r
 
@@ -85,7 +85,7 @@ parseMode : String -> Maybe OracleMode
 parseMode "-f" = Just FSM
 parseMode "--fsm" = Just FSM
 parseMode "-p" = Just Petri
-parseMode "-petri" = Just Petri
+parseMode "--petri" = Just Petri
 parseMode _ = Nothing
 
 printHelp : IO ()
@@ -106,5 +106,5 @@ main = do
     let result = do fileContent <- mapLeft (const FSError) content
                     jsonContent <- maybeToEither JSONError (parse fileContent)
                     (pickChecker pmode) jsonContent
-    printLn (TermWrite.serialiseJSON [String] [JString] TResult (toTDef result))
+    printLn (TermWrite.serialise StandardContext [] TResult (toTDef result))
 
