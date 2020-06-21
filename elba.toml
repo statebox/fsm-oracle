@@ -4,8 +4,8 @@ version = "0.1.0"
 authors = []
 
 [dependencies]
-"typedefs/typedefs" = { git = "https://github.com/typedefs/typedefs" , tag="a0ce68a1e467ec845917cb1e1411250cfb89b881"}
-"statebox/idris-ct" = { git = "https://github.com/statebox/idris-ct" , tag="master"}
+"typedefs/typedefs" = { git = "https://github.com/typedefs/typedefs" , tag="17eea0cb3ef7b4ae7ec3f0d2e89d2ea1b8635250"}
+"statebox/idris-ct" = { git = "https://github.com/statebox/idris-ct" , tag="416ad13ded92a88dc93761d0125d14061ed6140e"}
 
 [[targets.bin]]
 path = "src"
